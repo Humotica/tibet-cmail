@@ -19,7 +19,7 @@ Public API:
     from tibet_cmail.cli import main as cli_main
 """
 
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 
 from .audit import (
     CMAIL_RECEIVED_INTENT,

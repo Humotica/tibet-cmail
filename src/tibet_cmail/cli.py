@@ -186,9 +186,8 @@ def cmd_send(args: argparse.Namespace) -> int:
     audit_err = None
     if not args.no_audit:
         try:
-            event = build_sent_event(envelope, latency_ms=latency_ms)
+            event = build_sent_event(envelope, latency_ms=latency_ms, sealed=sealed_mode)
             if sealed_mode:
-                event["payload"]["sealed"] = True
                 event["payload"]["sealed_alg"] = "AES-256-GCM"
             audit_path = log_event(event, args.audit_log)
         except Exception as e:  # never let audit break a send
@@ -301,9 +300,9 @@ def cmd_inbox(args: argparse.Namespace) -> int:
     # Emit + log a gateway-event.v1 (cmail.message.received) per observed cmail.
     audit_events = 0
     if not args.no_audit and rows:
-        for env, _sealed in rows:
+        for env, sealed_row in rows:
             try:
-                event = build_received_event(env, recipient=args.agent)
+                event = build_received_event(env, recipient=args.agent, sealed=sealed_row)
                 log_event(event, args.audit_log)
                 audit_events += 1
             except Exception:

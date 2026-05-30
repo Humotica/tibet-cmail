@@ -55,6 +55,9 @@ def _operation_id(envelope: Envelope) -> str:
     return f"op_{envelope.message_id}"
 
 
+CMAIL_EVENT_KIND = "cmail.message.event.v1"
+
+
 def _base_event(
     *,
     intent: str,
@@ -63,14 +66,24 @@ def _base_event(
     status: str,
     latency_ms: float,
     surface: str,
+    sealed: bool = False,
     extra_payload: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
-    """Build a gateway-event.v1 record with cmail-specific fields filled in."""
+    """Build a gateway-event.v1 record with cmail-specific fields filled in.
+
+    The top-level `kind` and `sealed` fields are deliberately exposed so that
+    downstream evidence-adapters (e.g. tibet-audit) can match without parsing
+    the nested payload. `kind` starts with "cmail." so any
+    `kind.startswith("cmail.")` filter triggers, and `sealed` lets a consumer
+    accurately count Light vs Sealed without falling back to content_hash
+    presence.
+    """
     payload: dict[str, Any] = {
         "intent": intent,
         "to": envelope.to,
         "envelope_kind": "message",
         "content_hash": envelope.content_hash,
+        "sealed": bool(sealed),
     }
     if extra_payload:
         payload.update(extra_payload)
@@ -103,11 +116,16 @@ def _base_event(
         "content_hash": envelope.content_hash,
         "attestation_ref": f"attest:{envelope.message_id}",
         "gateway_actor": "jis:tibet-cmail",
+        # Top-level adapter-friendly fields (0.2.4+):
+        "kind": CMAIL_EVENT_KIND,
+        "sealed": bool(sealed),
         "payload": payload,
     }
 
 
-def build_sent_event(envelope: Envelope, latency_ms: float = 0.0) -> dict[str, Any]:
+def build_sent_event(
+    envelope: Envelope, latency_ms: float = 0.0, sealed: bool = False,
+) -> dict[str, Any]:
     """gateway-event.v1 record for an outbound cmail."""
     return _base_event(
         intent=CMAIL_SENT_INTENT,
@@ -116,10 +134,13 @@ def build_sent_event(envelope: Envelope, latency_ms: float = 0.0) -> dict[str, A
         status="cmail-pushed",
         latency_ms=latency_ms,
         surface=f"cmail.sent:{envelope.to}",
+        sealed=sealed,
     )
 
 
-def build_received_event(envelope: Envelope, recipient: str) -> dict[str, Any]:
+def build_received_event(
+    envelope: Envelope, recipient: str, sealed: bool = False,
+) -> dict[str, Any]:
     """gateway-event.v1 record for an inbound cmail observation."""
     return _base_event(
         intent=CMAIL_RECEIVED_INTENT,
@@ -128,6 +149,7 @@ def build_received_event(envelope: Envelope, recipient: str) -> dict[str, Any]:
         status="cmail-observed",
         latency_ms=0.0,
         surface=f"cmail.received:{recipient}",
+        sealed=sealed,
         extra_payload={"from": envelope.from_},
     )
 
