@@ -19,7 +19,7 @@ Public API:
     from tibet_cmail.cli import main as cli_main
 """
 
-__version__ = "0.1.1"
+__version__ = "0.2.1"
 
 from .audit import (
     CMAIL_RECEIVED_INTENT,
@@ -31,6 +31,18 @@ from .audit import (
     try_validate,
 )
 from .envelope import Envelope, build_envelope, hash_body
+from .sealed import (
+    SEAL_ALG,
+    SEALED_KIND,
+    SealedModeUnavailable,
+    SealedPayload,
+    build_sealed_envelope,
+    generate_key,
+    is_sealed_envelope,
+    seal,
+    unseal,
+    unseal_envelope,
+)
 
 __all__ = [
     "Envelope",
@@ -43,5 +55,15 @@ __all__ = [
     "build_received_event",
     "log_event",
     "try_validate",
+    "SEAL_ALG",
+    "SEALED_KIND",
+    "SealedModeUnavailable",
+    "SealedPayload",
+    "build_sealed_envelope",
+    "generate_key",
+    "is_sealed_envelope",
+    "seal",
+    "unseal",
+    "unseal_envelope",
     "__version__",
 ]

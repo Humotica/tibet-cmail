@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tibet-cmail"
-version = "0.1.1"
-description = "Cmail — capsulated email + command hub for HumoticaOS. Light Mode v0.1.1: I-Poll transport + JSON envelopes + cap-bus gateway-event.v1 audit (cmail.message.sent/received). Sealed Mode (TBZ + continuityd) comes in 0.2.x."
+version = "0.2.1"
+description = "Cmail — capsulated email + command hub for HumoticaOS. Light Mode (I-Poll + JSON + audit) + Sealed Mode (AES-256-GCM with AAD-bound message_id/from/to). Light is dep-free; Sealed pulls in `cryptography` via the `[sealed]` extra."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
@@ -35,9 +35,13 @@ classifiers = [
     "Topic :: System :: Networking",
 ]
 
-# Light Mode 0.1.x: pure stdlib (argparse + urllib + json + hashlib + uuid).
-# Sealed Mode 0.2.x will add optional deps: tibet-zip, tibet-continuityd, tibet-drop.
+# Light Mode 0.1.x + 0.2.x: pure stdlib (argparse + urllib + json + hashlib + uuid).
+# Sealed Mode 0.2.x: AES-256-GCM via the `cryptography` library, opt-in via [sealed].
 dependencies = []
+
+[project.optional-dependencies]
+# Enables `tibet-cmail send --sealed`, `keygen`, and `read` of sealed envelopes.
+sealed = ["cryptography>=42.0"]
 
 [project.urls]
 Homepage = "https://humotica.com"
