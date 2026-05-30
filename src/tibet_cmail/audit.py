@@ -84,6 +84,7 @@ def _base_event(
         "envelope_kind": "message",
         "content_hash": envelope.content_hash,
         "sealed": bool(sealed),
+        "subject": envelope.subject,
     }
     if extra_payload:
         payload.update(extra_payload)
@@ -119,6 +120,12 @@ def _base_event(
         # Top-level adapter-friendly fields (0.2.4+):
         "kind": CMAIL_EVENT_KIND,
         "sealed": bool(sealed),
+        # Top-level display fields (0.2.5+) — tibet-audit cockpit reads these
+        # directly so its tail/cockpit tables show the human subject instead
+        # of the opaque event_id, and so adapters can distinguish message_type
+        # (message vs command/etc.) without inspecting payload.intent.
+        "subject": envelope.subject,
+        "message_type": "message",
         "payload": payload,
     }
 

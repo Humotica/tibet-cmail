@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tibet-cmail"
-version = "0.2.4"
-description = "Cmail — capsulated email + command hub for HumoticaOS. Light + Sealed Mode + friendly TimeoutError + opt-in cap-bus runtime POST. 0.2.4: gateway-event.v1 records now carry top-level `kind=cmail.message.event.v1` and `sealed: bool` so evidence-adapters (tibet-audit cockpit) can count Light vs Sealed accurately without falling back to content_hash duck-type."
+version = "0.2.5"
+description = "Cmail — capsulated email + command hub for HumoticaOS. Light + Sealed Mode + audit + cap-bus runtime POST. 0.2.5: gateway-event.v1 records now carry top-level `subject` and `message_type` (alongside 0.2.4's `kind` + `sealed`) so tibet-audit cockpit tail/table display the human subject instead of the opaque event_id."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
